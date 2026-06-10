@@ -1,13 +1,11 @@
 version: '3.8'
 
 services:
-  # 1. Django REST Framework Backend Service
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: smartassist_backend_container
-    # Volume mapping jo data ko aapke local computer ki D: Drive (D:\smartassist-chatbot\backend) me save rakhegi
     volumes:
       - ./backend:/app
     ports:
@@ -16,7 +14,6 @@ services:
       - ./backend/.env
     restart: always
 
-  # 2. React (Vite) Frontend Service
   frontend:
     build:
       context: ./frontend
@@ -24,7 +21,7 @@ services:
     container_name: smartassist_frontend_container
     volumes:
       - ./frontend:/app
-      - /app/node_modules # Local node_modules ko override hone se bachane ke liye virtual volume
+      - /app/node_modules
     ports:
       - "5173:5173"
     stdin_open: true

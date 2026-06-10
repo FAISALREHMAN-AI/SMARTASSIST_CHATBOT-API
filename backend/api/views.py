@@ -1,108 +1,104 @@
 import os
+import requests
+from dotenv import load_dotenv
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
-from google import genai
-from dotenv import load_dotenv
-from .models import ChatMessage
 
 load_dotenv()
 
-# Gemini Client Initialize
-api_key = os.getenv("GEMINI_API_KEY")
-client = genai.Client(api_key=api_key) if api_key else None
+api_key = os.getenv("GROQ_API_KEY")
+print(f"🔑 DEBUG: Groq API Key starts with: '{api_key[:6] if api_key else 'NOT FOUND'}'")
 
-# User Registration View
-class RegisterView(APIView):
+
+class SmartAssistChatView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
-    
-    def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        email = request.data.get('email', '')
-        
-        if not username or not password:
-            return Response({'error': 'Username and password are required!'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        if User.objects.filter(username=username).exists():
-            return Response({'error': 'Username already exists!'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        user = User.objects.create_user(username=username, password=password, email=email)
-        token, _ = Token.objects.get_or_create(user=user)
-        
-        return Response({
-            'token': token.key,
-            'username': user.username,
-            'message': 'User registered successfully!'
-        }, status=status.HTTP_201_CREATED)
 
-# User Login View (Custom ObtainAuthToken to return username)
+    def post(self, request):
+        user_message = request.data.get("message")
+
+        if not user_message:
+            return Response({"error": "Message is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not api_key:
+            return Response({"error": "GROQ_API_KEY missing in backend/.env file"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        try:
+            response = requests.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": "llama-3.3-70b-versatile",
+                    "messages": [
+                        {"role": "user", "content": user_message}
+                    ],
+                },
+                timeout=30,
+            )
+
+            data = response.json()
+
+            if response.status_code != 200:
+                print("❌ GROQ ERROR LOG:", data)
+                return Response({"error": data}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            reply = data["choices"][0]["message"]["content"]
+            return Response({"reply": reply}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            print("❌ GROQ ERROR LOG:", str(e))
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ChatHistoryView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({"history": []}, status=status.HTTP_200_OK)
+
+
 class CustomAuthToken(ObtainAuthToken):
     permission_classes = [AllowAny]
-    
+
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        token, _ = Token.objects.get_or_create(user=user)
+        token, created = Token.objects.get_or_create(user=user)
         return Response({
             'token': token.key,
             'user_id': user.pk,
-            'username': user.username
-        })
+            'email': user.email
+        }, status=status.HTTP_200_OK)
 
-# Authenticated Chat View
-class SmartAssistChatView(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-    
+
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
-        if not client:
-            return Response(
-                {"error": "GEMINI_API_KEY is missing from backend configuration!"}, 
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-            
-        user_message = request.data.get("message")
-        if not user_message:
-            return Response({"error": "Message is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            # Call Gemini
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=user_message,
-            )
-            
-            # Persistent Storage: Save to SQLite Database
-            ChatMessage.objects.create(
-                user=request.user,
-                message=user_message,
-                reply=response.text
-            )
-            
-            return Response({"reply": response.text}, status=status.HTTP_200_OK)
-            
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        username = request.data.get("username")
+        password = request.data.get("password")
+        email = request.data.get("email", "")
 
-# Chat History Fetch View
-class ChatHistoryView(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-    
-    def get(self, request):
-        messages = ChatMessage.objects.filter(user=request.user).order_by('timestamp')
-        history = []
-        for msg in messages:
-            history.append({
-                'message': msg.message,
-                'reply': msg.reply,
-                'timestamp': msg.timestamp.strftime('%I:%M %p')
-            })
-        return Response(history, status=status.HTTP_200_OK)
+        if not username or not password:
+            return Response({"error": "Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(username=username).exists():
+            return Response({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.create_user(username=username, password=password, email=email)
+        token, created = Token.objects.get_or_create(user=user)
+
+        return Response({
+            "message": "User registered successfully",
+            "token": token.key
+        }, status=status.HTTP_201_CREATED)
