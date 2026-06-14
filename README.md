@@ -1,47 +1,47 @@
-# SmartAssist AI - Full-Stack Conversational Chatbot
+# SmartAssist AI - Full-Stack Conversational Chatbot Platform
 
-SmartAssist AI ek enterprise-grade, full-stack conversational platform hai jo users ko ek asynchronous real-time chat interface provide karta hai. Yeh application high-speed **Groq AI (Llama 3 Architecture)** engine se powered hai, jise backend pipeline par Django REST Framework aur client side par React.js + Vite ke sath tightly integrate kiya gaya hai.
+SmartAssist AI is an enterprise-grade, full-stack conversational application engineered to deliver seamless real-time interactions over a highly scalable infrastructure. The intelligence layer is backed by the ultra-fast **Groq AI Gateway (Meta Llama 3 Architecture)**, seamlessly bound to a robust Django REST Framework backend proxy and a highly reactive React.js frontend interface.
 
 ## ⚙️ Technical Architecture Stack
 
-- **Backend Framework:** Django 6.x & Django REST Framework (DRF)
-- **Frontend Ecosystem:** React.js (v18+) & Vite Framework (Dark Mode Responsive UI)
-- **AI Compilation Layer:** Groq Cloud API SDK via OpenAI Client Core
-- **Database Architecture:** SQLite Instance managed through Django ORM
-- **Security & Session Layer:** Django Token-Based Cross-Origin Authentication
-- **Containerization:** Docker Framework & Docker Compose Engine
+- **Backend Engineering:** Django 6.x & Django REST Framework (DRF)
+- **Frontend Ecosystem:** React.js (v18+) powered by Vite Framework
+- **AI Compilation Core:** Groq Cloud API SDK via Abstracted OpenAI Protocol
+- **Database Model:** Local SQLite relational instance managed via Django ORM
+- **Security & Session Layer:** Django Stateless Token-Based Cross-Origin Authentication
+- **Virtualization & Deployment:** Multi-container Docker & Docker Compose Orchestration
 
-## 🏛️ System Data Flow Diagram
+## 🏛️ System Data Flow Pipeline
 
-1. **Client Request:** React UI capture karta hai user ka message aur use Axios client ke zariye Django POST endpoint `/api/chat/` par push karta hai.
-2. **Token Security:** Django middleware request header se authorization token cross-verify karta hai.
-3. **AI Compilation:** Backend proxy client securely invoke karta hai Groq API gateway ko using Meta Llama-3 (8B) infrastructure.
-4. **Data Relational Storage:** Success execution ke baad session array state save hoti hai relational local SQLite database mein.
-5. **UI Rendering:** Output payload dynamic asynchronous state update ke zariye client application screen par display hota hai.
+1. **Ingress Payload Request:** The React virtual DOM captures user inputs and securely dispatches an asynchronous JSON payload to the Django REST server via Axios at `/api/chat/`.
+2. **Token Authentication Check:** The backend middleware interceptor parses the incoming HTTP headers to cross-verify cryptographic token signatures mapped to the database.
+3. **API Processing Broker:** Once validated, the backend views instantiate a secure proxy client forwarding the payload context to the Meta Llama 3 computing layer on Groq Cloud.
+4. **Relational Persistence Layer:** Upon receiving a successful compilation stream, the interaction record status updates asynchronously inside the local SQLite schema.
+5. **Egress Rendering:** The compiled response structure resolves back through the API endpoints, updating state parameters instantly within the browser viewport.
 
 ---
 
-## 🚀 Local Installation & Execution Guide
+## 🚀 Installation & Execution Workflow
 
-### Prerequisite Setup
-Aapke local machine par Python 3.11+, Node.js 18+, aur Docker Desktop configured hona chahiye.
+### Prerequisites
+Ensure your operating system is equipped with Python 3.11+, Node.js 18+, and Docker Desktop before setting up the operational environments.
 
-### Setup Method A: Running via Native Terminal
+### Deployment Method A: Standard Shell Terminal Execution
 
-#### 1. Backend Runtime Environment Setup
+#### 1. Backend Microservice Deployment
 ```bash
-# Navigate to backend path
+# Navigate to the backend directory path
 cd backend
 
-# Create virtual environment
+# Initialize and activate isolated virtual package layer
 python -m venv .venv
 .\.venv\Scripts\activate
 
-# Install required components
+# Install essential dependencies
 pip install django djangorestframework django-cors-headers openai python-dotenv
 
-# Execute Database Migration
+# Synchronize core database migrations
 python manage.py migrate
 
-# Initiate Local Web Server
+# Initialize local development proxy gateway
 python manage.py runserver
