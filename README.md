@@ -30,18 +30,9 @@ Ensure your operating system is equipped with Python 3.11+, Node.js 18+, and Doc
 
 #### 1. Backend Microservice Deployment
 ```bash
-# Navigate to the backend directory path
 cd backend
-
-# Initialize and activate isolated virtual package layer
 python -m venv .venv
 .\.venv\Scripts\activate
-
-# Install essential dependencies
 pip install django djangorestframework django-cors-headers openai python-dotenv
-
-# Synchronize core database migrations
 python manage.py migrate
-
-# Initialize local development proxy gateway
 python manage.py runserver
