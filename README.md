@@ -1,38 +1,149 @@
-# SmartAssist AI - Full-Stack Conversational Chatbot Platform
+# SmartAssist AI — Full-Stack Conversational Chatbot
 
-SmartAssist AI is an enterprise-grade, full-stack conversational application engineered to deliver seamless real-time interactions over a highly scalable infrastructure. The intelligence layer is backed by the ultra-fast **Groq AI Gateway (Meta Llama 3 Architecture)**, seamlessly bound to a robust Django REST Framework backend proxy and a highly reactive React.js frontend interface.
-
-## ⚙️ Technical Architecture Stack
-
-- **Backend Engineering:** Django 6.x & Django REST Framework (DRF)
-- **Frontend Ecosystem:** React.js (v18+) powered by Vite Framework
-- **AI Compilation Core:** Groq Cloud API SDK via Abstracted OpenAI Protocol
-- **Database Model:** Local SQLite relational instance managed via Django ORM
-- **Security & Session Layer:** Django Stateless Token-Based Cross-Origin Authentication
-- **Virtualization & Deployment:** Multi-container Docker & Docker Compose Orchestration
-
-## 🏛️ System Data Flow Pipeline
-
-1. **Ingress Payload Request:** The React virtual DOM captures user inputs and securely dispatches an asynchronous JSON payload to the Django REST server via Axios at `/api/chat/`.
-2. **Token Authentication Check:** The backend middleware interceptor parses the incoming HTTP headers to cross-verify cryptographic token signatures mapped to the database.
-3. **API Processing Broker:** Once validated, the backend views instantiate a secure proxy client forwarding the payload context to the Meta Llama 3 computing layer on Groq Cloud.
-4. **Relational Persistence Layer:** Upon receiving a successful compilation stream, the interaction record status updates asynchronously inside the local SQLite schema.
-5. **Egress Rendering:** The compiled response structure resolves back through the API endpoints, updating state parameters instantly within the browser viewport.
+A full-stack AI chatbot platform built with Django REST Framework and React.js, powered by the Groq API (Meta Llama 3). Includes token-based authentication, persistent chat history, and a fully containerized Docker setup.
 
 ---
 
-## 🚀 Installation & Execution Workflow
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Django 5.x + Django REST Framework |
+| Frontend | React.js 18 + Vite |
+| AI Model | Meta Llama 3 via Groq Cloud API |
+| Database | SQLite (via Django ORM) |
+| Auth | Token-based authentication (DRF) |
+| Deployment | Docker + Docker Compose |
+
+---
+
+## Features
+
+- Real-time chat interface with streaming AI responses
+- Token-based user authentication (register, login, logout)
+- Persistent chat history stored per user session
+- CORS-configured Django backend acting as a secure API proxy to Groq
+- Fully containerized — runs with a single Docker Compose command
+
+---
+
+## System Flow
+
+```
+User Input (React)
+    → Axios POST /api/chat/
+        → Django validates auth token
+            → Groq API (Llama 3) generates response
+                → Saved to SQLite
+                    → Response returned to frontend
+```
+
+---
+
+## Getting Started
 
 ### Prerequisites
-Ensure your operating system is equipped with Python 3.11+, Node.js 18+, and Docker Desktop before setting up the operational environments.
 
-### Deployment Method A: Standard Shell Terminal Execution
+- Python 3.11+
+- Node.js 18+
+- Docker Desktop (for containerized setup)
+- Groq API key — get one free at [console.groq.com](https://console.groq.com)
 
-#### 1. Backend Microservice Deployment
+---
+
+### Option A: Run with Docker (Recommended)
+
+```bash
+git clone https://github.com/FAISALREHMAN-AI/smartassist-ai.git
+cd smartassist-ai
+```
+
+Create a `.env` file in the `backend/` directory:
+
+```env
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+Then start everything:
+
+```bash
+docker-compose up --build
+```
+
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:8000/api/`
+
+---
+
+### Option B: Run Locally (Without Docker)
+
+#### Backend
+
 ```bash
 cd backend
 python -m venv .venv
-.\.venv\Scripts\activate
+.\.venv\Scripts\activate        # Windows
+source .venv/bin/activate       # macOS/Linux
+
 pip install django djangorestframework django-cors-headers openai python-dotenv
+
 python manage.py migrate
 python manage.py runserver
+```
+
+#### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+## Environment Variables
+
+Create `backend/.env`:
+
+```env
+GROQ_API_KEY=your_groq_api_key_here
+DEBUG=True
+```
+
+---
+
+## Project Structure
+
+```
+smartassist-ai/
+├── backend/
+│   ├── chat/               # Chat API views and models
+│   ├── users/              # Auth endpoints
+│   ├── smartassist/        # Django settings and URLs
+│   ├── manage.py
+│   └── .env
+├── frontend/
+│   ├── src/
+│   │   ├── components/     # Chat UI components
+│   │   └── pages/          # Login, Register, Chat pages
+│   └── vite.config.js
+└── docker-compose.yml
+```
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/auth/register/` | Register new user |
+| POST | `/api/auth/login/` | Login and get token |
+| POST | `/api/chat/` | Send message, get AI response |
+| GET | `/api/chat/history/` | Fetch user chat history |
+
+---
+
+## Built By 
+
+**Faisal Rehman** — AI Developer & Full-Stack Engineer
+[LinkedIn](https://linkedin.com/in/faisal-rehman-ai) · [GitHub](https://github.com/FAISALREHMAN-AI) · [Portfolio](https://faisal-rehman.lovable.app)
