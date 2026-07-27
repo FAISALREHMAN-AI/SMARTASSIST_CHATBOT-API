@@ -4,6 +4,7 @@ A full-stack AI chatbot platform built with Django REST Framework and React.js, 
 
 ---
 
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -39,6 +40,14 @@ User Input (React)
 ```
 
 ---
+## 🔗 Live API
+Base URL: https://web-production-e7d7b.up.railway.app
+
+| Endpoint | Method |
+|---|---|
+| /api/chat/ | POST |
+| /api/auth/login/ | POST |
+| /api/auth/register/ | POST |
 
 ## Getting Started
 
