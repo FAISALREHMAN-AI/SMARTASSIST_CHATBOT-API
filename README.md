@@ -14,7 +14,7 @@ A full-stack AI chatbot platform built with Django REST Framework and React.js, 
 | AI Model | Meta Llama 3 via Groq Cloud API |
 | Database | SQLite (via Django ORM) |
 | Auth | Token-based authentication (DRF) |
-| Deployment | Docker + Docker Compose |
+| Deployment | Docker + Docker Compose · Railway (Live) |
 
 ---
 
